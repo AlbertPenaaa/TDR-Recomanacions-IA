@@ -1,12 +1,13 @@
 import flask
 from flask import request, jsonify
-# Ja no cal importar 'os', 'pickle', 'pandas', ni 'implicit'
+from flask_cors import CORS # <-- NOVA LLIBRERIA NECESSÀRIA
+# Ja no cal importar res més.
 
 # --- 1. Configuració de l'API ---
 app = flask.Flask(__name__)
+CORS(app) # <-- AQUESTA LÍNIA SOLUCIONA EL BLOQUEIG DE WEBNODE!
 
 # --- 2. Dades Fictícies (Simulació de Recomanació) ---
-# Aquesta llista simula les recomanacions que hauria de donar el teu model
 RECOMANACIONS_FICTICIES = [
     {"id": "Risoterapia_Grup"},
     {"id": "Sessio_Individual"},
@@ -17,7 +18,6 @@ RECOMANACIONS_FICTICIES = [
 # --- 3. La Ruta de Recomanació (Endpoint) ---
 @app.route('/api/recomana', methods=['GET'])
 def recomana():
-    # 3.1. Rebre la petició (Només per complir el format)
     producte_actual_id = request.args.get('producte') 
 
     if not producte_actual_id:
@@ -25,7 +25,6 @@ def recomana():
 
     try:
         # 3.2. Retorna les recomanacions Fictícies
-        # Sempre tornem el mateix, simulant que l'IA funciona
         return jsonify({"recomanacions": RECOMANACIONS_FICTICIES})
 
     except Exception as e:
