@@ -1,8 +1,9 @@
-import flask
+import os # <-- NECESSARI per al canvi de ruta
 from flask import request, jsonify
+import flask # Cal importar Flask
 import pickle
 import pandas as pd
-from implicit.utils import check_blas_config # Per eliminar warnings
+from implicit.utils import check_blas_config 
 
 check_blas_config() 
 
@@ -10,8 +11,13 @@ check_blas_config()
 app = flask.Flask(__name__)
 
 # --- 2. Carregar el Cervell de la IA (model.pkl) ---
+
+# Aquesta línia utilitza 'os' per construir una ruta ABSOLUTA
+# i força el servidor a buscar el fitxer dins del mateix directori de l'script.
+pkl_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'algoritme_ia_final.pkl')
+
 try:
-    with open('algoritme_ia_final.pkl', 'rb') as file:
+    with open(pkl_file_path, 'rb') as file: # <-- S'utilitza la nova variable de ruta
         data_to_save = pickle.load(file)
         model = data_to_save['model']
         item_reverse_map = data_to_save['item_reverse_map']
@@ -19,7 +25,8 @@ try:
         
         print("Model d'IA carregat amb èxit.")
 except Exception as e:
-    print(f"Error carregant el model: {e}")
+    # Aquest 'print' ens dirà als logs de Render si l'error persisteix
+    print(f"Error carregant el model: {e}") 
     model = None 
 
 
@@ -30,6 +37,7 @@ def recomana():
     producte_actual_id = request.args.get('producte') 
 
     if not model or not producte_actual_id:
+        # Aquest error es dispara si el model no es carrega (Error 400)
         return jsonify({"error": "Dades o model no disponibles"}), 400
 
     try:
